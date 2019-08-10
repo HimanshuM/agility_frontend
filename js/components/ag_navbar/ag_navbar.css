@@ -1,0 +1,15 @@
+.ag-navbar {
+	align-items: center;
+	background: white;
+	box-shadow: 0 1px 10px 1px rgba(200,200,200.9);
+	display: flex;
+	justify-content: space-between;
+	left: 0;
+	padding: 15px;
+	position: fixed;
+	right: 0;
+	top: 0;
+}
+.ag-navbar h1, .ag-navbar h2, .ag-navbar h3, .ag-navbar h4, .ag-navbar h5, .ag-navbar h6 {
+	margin: 0;
+}
