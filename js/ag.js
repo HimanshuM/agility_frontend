@@ -610,6 +610,14 @@ class Component {
 			this.parent.compileOne(watch);
 		}
 	}
+	invoke(method, args = []) {
+		if (!!this[method]) {
+			this[method](...args);
+		}
+		else if (this.parent) {
+			this.parent.invoke(method, args);
+		}
+	}
 }
 class DirectiveTypes {
 	static get Element() {
