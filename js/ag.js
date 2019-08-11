@@ -700,6 +700,7 @@ class Application {
 }
 class Dispatch {
 	static init() {
+		Http.initialize();
 		Dispatch.base = false;
 		Dispatch.router = false;
 		Dispatch.components = [];
