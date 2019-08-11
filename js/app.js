@@ -1,4 +1,8 @@
 class AgApplication extends Application {
+	constructor() {
+		super();
+		Http.config.cache = "no-cache";
+	}
 	init() {
 		Routes.draw([
 			{path: "/", component: RootComponent},
@@ -22,9 +26,13 @@ class AppComponent extends Component {
 class NavBarComponent extends Component {
 	templateUrl = "/views/common/nav_bar.html";
 	selector = "nav-bar";
+	test = "Logout";
 	constructor() {
 		super();
 		this.include(AgNavbar);
+	}
+	print(ev, el) {
+		this.test = "Login";
 	}
 }
 class RootComponent extends Component {
@@ -33,6 +41,9 @@ class RootComponent extends Component {
 	course_name = "Lisp";
 	courses = ["Lisp", "Steel Bank Lisp", "Scheme", "Common Lisp"];
 	index = 0;
+	constructor() {
+		super();
+	}
 	laud() {
 		this.index++;
 		if (this.index > 3) {
