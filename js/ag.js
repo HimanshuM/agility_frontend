@@ -440,9 +440,15 @@ class Element {
 	constructor(el) {
 		this.nativeElement = el;
 	}
+	static create(tagName) {
+		return new Element(document.createElement(tagName));
+	}
 	static find(tag) {
+		return Element.findIn(document, tag);
+	}
+	static findIn(element, tag) {
 		var elements = [];
-		var nEl = document.querySelectorAll(tag);
+		var nEl = element.querySelectorAll(tag);
 		for (var el of nEl) {
 			elements.push(new Element(el));
 		}
@@ -455,6 +461,45 @@ class Element {
 			elements.push(new Element(el));
 		}
 		return elements;
+	}
+	get innerHTML() {
+		return this.nativeElement.innerHTML;
+	}
+	set innerHTML(html) {
+		this.nativeElement.innerHTML = html;
+	}
+	get attributes() {
+		return this.nativeElement.attributes;
+	}
+	get style() {
+		return this.nativeElement.style;
+	}
+	addClass(cls) {
+		this.nativeElement.classList.add(cls);
+	}
+	removeClass(cls) {
+		this.nativeElement.classList.remove(cls);
+	}
+	toggleClass(cls) {
+		this.nativeElement.classList.toggle(cls);
+	}
+	hasClass(cls) {
+		return this.nativeElement.classList.contains(cls);
+	}
+	append(element) {
+		if (element instanceof Element) {
+			element = element.nativeElement;
+		}
+		this.nativeElement.append(element);
+	}
+	remove() {
+		this.nativeElement.remove();
+	}
+	get hashCode() {
+		return this.nativeElement.hashCode;
+	}
+	set hashCode(hc) {
+		this.nativeElement.hashCode = hc;
 	}
 }
 class Component {
