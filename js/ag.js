@@ -418,7 +418,7 @@ class Watch {
 		for (var attr of attrs) {
 			if (matches = attr.value.match(/{{(\w+)}}/g)) {
 				var siblings = new BindingSibling;
-				for (var match in matches) {
+				for (var match of matches) {
 					var index = node.innerHTML.indexOf(match);
 					// var prop = match.replace("{{", "").replace("}}", "");
 					siblings.add(new Binding(node, match, index, attr));
