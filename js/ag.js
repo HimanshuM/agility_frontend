@@ -638,18 +638,94 @@ class AgClick extends Directive {
 		return DirectiveTypes.Attribute;
 	}
 	onInit() {
-		this.attr = this.element.nativeElement.attributes.getNamedItem("ag-click");
+		this.attr = this.element.attributes.getNamedItem("ag-click");
 		if (this.attr) {
 			this.watches.watches.push(new Binding(this.element.nativeElement, this.attr.value, 0, this.attr));
 		}
 		var c = this;
-		this.element.nativeElement.onclick = function(e) {
+		this.element.nativeElement.addEventListener("click", function(e) {
 			c.click(e, this);
-		};
+		});
 	}
 	click(e, el) {
 		if (this.attr) {
-			this.parent[this.attr.value.replace("()", "")]();
+			this.parent.invoke(this.attr.value.replace("()", ""), [e, el]);
+		}
+	}
+}
+class AgRipple extends Directive {
+	selector = "ag-ripple";
+	static type() {
+		return DirectiveTypes.Attribute;
+	}
+	onInit() {
+		if (this.element.hasClass("ag-ripple")) {
+			return;
+		}
+		this.element.addClass("ag-ripple");
+		this.ripple = Element.create("div");
+		this.ripple.addClass("ripple");
+		this.element.append(this.ripple);
+		var c = this;
+		this.element.nativeElement.addEventListener("mousedown", function(e) {
+			c.ripples(e, this);
+		});
+		this.element.nativeElement.addEventListener("mouseup", function(e) {
+			c.ripplesOut(e, this);
+		});
+	}
+	ripples(ev, el) {
+		var buttonWidth = el.offsetWidth + 5,
+		buttonHeight =  el.offsetHeight + 5;
+		if (buttonWidth >= buttonHeight) {
+			buttonHeight = buttonWidth;
+		}
+		else {
+			buttonWidth = buttonHeight;
+		}
+		var x = ev.pageX - el.offsetLeft - buttonWidth;
+		var y = ev.pageY - el.offsetTop - buttonHeight;
+		// Add the ripples CSS and start the animation
+		this.rippler = Element.create("div");
+		this.ripple.append(this.rippler);
+		this.rippler.addClass("ripple-effect");
+		window.setTimeout(() => {
+			this.rippler.style.left = x + "px";
+			this.rippler.style.top = y + "px";
+			this.rippler.style.height = (buttonHeight * 2) + "px";
+			this.rippler.style.width = (buttonWidth * 2) + "px";
+			this.rippler.style.transform = "scale(1)";
+		}, 5);
+	}
+	ripplesOut(ev, el) {
+		var c = this;
+		window.setTimeout(function() {
+			c.rippler.style.opacity = 0;
+			window.setTimeout(function() {
+				c.rippler.remove();
+			}, 200);
+		}, 200);
+	}
+}
+class AgButton extends AgRipple {
+	onInit() {
+		if (this.element.hasClass("ag-button")) {
+			return;
+		}
+		var c = this;
+		this.element.addClass("ag-button");
+		var span = document.createElement("span");
+		span.classList.add("ag-button-title");
+		span.innerHTML = this.element.innerHTML;
+		this.element.innerHTML = "";
+		this.element.append(span);
+		this.transferBindingsTo(span);
+		super.onInit();
+	}
+	transferBindingsTo(span) {
+		var bindings = BindingMap.of(this.element.hashCode);
+		for (var b of bindings) {
+			b.transferTo(span);
 		}
 	}
 }
@@ -692,7 +768,7 @@ class Application {
 		Application.nativeComponents = {
 			"AgNavbar": "/js/components/ag_navbar/ag_navbar.js"
 		}
-		Application.nativeDirectives = [AgClick];
+		Application.nativeDirectives = [AgClick, AgRipple, AgButton];
 	}
 	include(component, last = false) {
 		if (!!Application.nativeComponents[component]) {
@@ -742,9 +818,6 @@ class Dispatch {
 				Dispatch.navigateTo(el.pathname);
 			}
 		}
-		// else if (el.attributes.getNamedItem("ag-click")) {
-		// 	Dispatch.compilations.runAgClick(el);
-		// }
 		else {
 			Dispatch.components.forEach(function(e) {
 				e.compile();
