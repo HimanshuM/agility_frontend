@@ -206,8 +206,7 @@ var nil = {
 };
 class Binding {
 	constructor(node, expression, index, attr = false) {
-		this.node = node;
-		this.node.hashCode = Math.random().toString(36).substring(7);
+		this.setNode(node);
 		this.length = 0;
 		if (expression.indexOf("{{") > -1 && expression.indexOf("}}") > -1) {
 			expression = expression.replace("{{", "").replace("}}", "");
@@ -218,6 +217,13 @@ class Binding {
 		this.index = index;
 		this.value = undefined;
 		this.attr = attr;
+		BindingMap.add(this.node.hashCode, this);
+	}
+	setNode(node) {
+		this.node = node;
+		if (!this.node.hashCode) {
+			this.node.hashCode = Math.random().toString(36).substring(7);
+		}
 	}
 	compile(obj) {
 		if (Object.keys(obj).indexOf(this.expression) < 0) {
@@ -254,6 +260,15 @@ class Binding {
 			this.attr.value = String.replace(this.attr.value, this.index, obj[this.expression], this.value.length);
 		}
 	}
+	transferTo(node) {
+		if (node instanceof Element) {
+			node = node.nativeElement;
+		}
+		var bindings = BindingMap.of(this.node.hashCode);
+		bindings.splice(bindings.indexOf(this), 1);
+		this.setNode(node);
+		BindingMap.add(this.node.hashCode, this);
+	}
 }
 class BindingSibling {
 	siblings = [];
@@ -277,6 +292,31 @@ class BindingSibling {
 			}
 		});
 		return uncompiled;
+	}
+}
+class BindingMap {
+	#map = {};
+	static object;
+	static get instance() {
+		if (!BindingMap.object) {
+			BindingMap.object = new BindingMap;
+		}
+		return BindingMap.object;
+	}
+	static add(hashCode, binding) {
+		if (!BindingMap.instance.#map[hashCode]) {
+			BindingMap.instance.#map[hashCode] = [];
+		}
+		BindingMap.instance.#map[hashCode].push(binding);
+	}
+	static of(hashCode) {
+		if (!hashCode) {
+			return [];
+		}
+		if (!BindingMap.instance.#map[hashCode]) {
+			BindingMap.instance.#map[hashCode] = [];
+		}
+		return BindingMap.instance.#map[hashCode];
 	}
 }
 class Ast {
