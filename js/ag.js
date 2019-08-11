@@ -509,6 +509,7 @@ class Component {
 	selector = "ag-view";
 	element = false;
 	includes = [];
+	innerHTML = "";
 	$children = [];
 	#callback = null;
 	parent = false;
@@ -564,10 +565,16 @@ class Component {
 	}
 	renderTemplate(data) {
 		if (!this.element) {
-			this.element = Element.find(this.selector)[0];
+			if (this.parent) {
+				this.element = this.parent.element.find(this.selector)[0];
+			}
+			else {
+				this.element = Element.find(this.selector)[0];
+			}
 		}
-		for (var i = 0; i < this.element.nativeElement.children.length; i++) {
-			this.$children.push(this.element.nativeElement.children[i].cloneNode(true));
+		this.innerHTML = this.element.nativeElement.innerHTML;
+		for (var e of this.element.nativeElement.childNodes) {
+			this.$children.push(e);
 		};
 		this.element.nativeElement.innerHTML = data;
 		this.onInit();
