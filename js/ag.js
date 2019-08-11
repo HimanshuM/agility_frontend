@@ -1,62 +1,111 @@
 class Response {
-	constructor(xhr) {
-		this.status = xhr;
-		this.data = xhr.response;
-		this.xhr = xhr;
+	constructor(response) {
+		this.status = response.status;
+		this.response = response;
+		this.headers = {"content-type": ""};
+		this.data = "";
+		this.parseHeaders();
+	}
+	parseHeaders() {
+		for (var h of this.response.headers.entries()) {
+			this.headers[h[0]] = h[1];
+			if (h[0] == "content-type") {
+				this.contentType = h[1];
+			}
+		}
+	}
+	resolve() {
+		if (this.status >= 200 && this.status < 300) {
+			return this.parseData();
+		}
+		else {
+			return Promise.reject(this);
+		}
+	}
+	parseData() {
+		let r = this;
+		let contentType = this.headers["content-type"];
+		if (contentType == "application/json") {
+			return this.response.json().then((data) => {
+				r.data = data;
+				return r;
+			});
+		}
+		else if (contentType.indexOf("text/") > -1 || contentType == "application/javascript") {
+			return this.response.text().then((data) => {
+				r.data = data;
+				return r;
+			});
+		}
+		else {
+			return this.response.blob().then((data) => {
+				r.data = data;
+				return r;
+			});
+		}
+	}
+	static build(response) {
+		response = new Response(response);
+		return response.resolve();
 	}
 }
 class Http {
-	static delete(url, data = null) {
-		return Http.request({method: "delete", url: url, data: data});
+	static config;
+	static initialize() {
+		Http.config = {
+			mode: "no-cors",
+			cache: "default",
+			credentials: "same-origin",
+			headers: {}
+		};
 	}
-	static get(url, data = null) {
-		return Http.request({method: "get", url: url, data: data});
+	static delete(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "delete", headers: headers, body: body});
 	}
-	static head(url, data = null) {
-		return Http.request({method: "head", url: url, data: data});
+	static get(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "get", headers: headers, body: body});
 	}
-	static patch(url, data = null) {
-		return Http.request({method: "patch", url: url, data: data});
+	static head(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "head", headers: headers, body: body});
 	}
-	static post(url, data = null) {
-		return Http.request({method: "post", url: url, data: data});
+	static options(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "options", headers: headers, body: body});
 	}
-	static put(url, data = null) {
-		return Http.request({method: "put", url: url, data: data});
+	static patch(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "patch", headers: headers, body: body});
 	}
-	static request(opts = {}) {
-		return new Promise(function(resolve, reject) {
-			if (!opts.method) {
-				opts.method = "GET";
+	static post(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "post", headers: headers, body: body});
+	}
+	static put(url = "/", headers = {}, body = null) {
+		return Http.request(url, {method: "put", headers: headers, body: body});
+	}
+	static request(url = "/", opts = {}) {
+		Http.prepareRequest(opts);
+		return fetch(url, opts).then(Response.build);
+	}
+	static prepareRequest(opts) {
+		Http.validateOptions(opts);
+		opts.mode = Http.config.mode;
+		opts.cache = Http.config.cache;
+	}
+	static validateOptions(opts) {
+		if (!opts.method) {
+			opts.method = "GET";
+		}
+		opts.method = opts.method.toUpperCase();
+		if (!opts.url) {
+			opts.url = "/";
+		}
+		if (!opts.headers) {
+			opts.headers = {};
+		}
+		Object.keys(Http.config.headers).forEach(function(e) {
+			if (Object.keys(opts.headers).indexOf(e) < 0) {
+				opts.headers[e] = Http.config.headers[e];
 			}
-			opts.method = opts.method.toUpperCase();
-			if (!opts.url) {
-				opts.url = "/";
-			}
-			var xhr = new XMLHttpRequest();
-			xhr.open(opts.method, opts.url, true);
-			if (!!opts.headers) {
-				Object.keys(opts.headers).forEach(function(k) {
-					xhr.setRequestHeader(k, opts.headers[k]);
-				});
-			}
-			xhr.onreadystatechange = function() {
-				if (xhr.readyState == 4) {
-					var response = new Response(xhr);
-					if (xhr.status == 200) {
-						resolve(response);
-					}
-					else {
-						reject(response);
-					}
-				}
-			}
-			xhr.send(opts.data);
 		});
 	}
-}
-class HttpConfig {
-
 }
 class Routes {
 	#routes = {"/": {}};
