@@ -205,7 +205,7 @@ var nil = {
 	}
 };
 class Binding {
-	constructor(node, expression, index, attr = false) {
+	constructor(node, expression, index, attr = false, callback = null) {
 		this.setNode(node);
 		this.length = 0;
 		if (expression.indexOf("{{") > -1 && expression.indexOf("}}") > -1) {
@@ -217,6 +217,7 @@ class Binding {
 		this.index = index;
 		this.value = undefined;
 		this.attr = attr;
+		this.callback = callback;
 		BindingMap.add(this.node.hashCode, this);
 	}
 	setNode(node) {
@@ -225,39 +226,42 @@ class Binding {
 			this.node.hashCode = Math.random().toString(36).substring(7);
 		}
 	}
-	compile(obj) {
-		if (Object.keys(obj).indexOf(this.expression) < 0) {
-			return -1;
+	compile(obj, callback) {
+		if (this.callback) {
+			return this.callback(this, obj);
 		}
-		if (obj[this.expression] != this.value) {
-			if (this.value) {
-				this.length = this.value.toString().length;
+		obj.invoke((result) => {
+			var changed = false;
+			if (result != this.value) {
+				if (this.value) {
+					this.length = this.value.toString().length;
+				}
+				if (this.attr) {
+					this.compileAttr(result);
+				}
+				else {
+					this.compileText(result);
+				}
+				this.value = result;
+				changed = true;
 			}
-			if (this.attr) {
-				this.compileAttr(obj);
-			}
-			else {
-				this.compileText(obj);
-			}
-			this.value = obj[this.expression];
-			return 1;
-		}
-		return 0;
+			callback(result, changed);
+		}, this.expression);
 	}
-	compileText(obj) {
+	compileText(result) {
 		if (this.value === undefined) {
-			this.node.innerHTML = this.node.innerHTML.replace("{{" + this.expression + "}}", obj[this.expression]);
+			this.node.innerHTML = this.node.innerHTML.replace("{{" + this.expression + "}}", result);
 		}
 		else {
-			this.node.innerHTML = String.replace(this.node.innerHTML, this.index, obj[this.expression], this.value.length);
+			this.node.innerHTML = String.replace(this.node.innerHTML, this.index, result, this.value.length);
 		}
 	}
-	compileAttr(obj) {
+	compileAttr(result) {
 		if (this.value === undefined) {
-			this.attr.value = this.attr.value.replace("{{" + this.expression + "}}", obj[this.expression]);
+			this.attr.value = this.attr.value.replace("{{" + this.expression + "}}", result);
 		}
 		else {
-			this.attr.value = String.replace(this.attr.value, this.index, obj[this.expression], this.value.length);
+			this.attr.value = String.replace(this.attr.value, this.index, result, this.value.length);
 		}
 	}
 	transferTo(node) {
@@ -282,16 +286,12 @@ class BindingSibling {
 		var offset = 0, uncompiled = [];
 		this.siblings.forEach(function(e) {
 			e.index += offset;
-			var status = e.compile(obj);
-			if (status == 1) {
-				var valLength = e.value.toString().length;
-				offset += valLength - e.length;
-			}
-			else if (status == -1) {
-				uncompiled.push(e);
-			}
+			e.compile(obj, (result, changed) => {
+				if (changed) {
+					offset += result.toString().length - e.length;
+				}
+			});
 		});
-		return uncompiled;
 	}
 }
 class BindingMap {
@@ -427,13 +427,10 @@ class Watch {
 			}
 		}
 	}
-	compile(obj) {
-		var uncompiled = [];
+	compile(obj, callback) {
 		this.watches.forEach(function(e) {
-			var res = e.compile(obj);
-			uncompiled = uncompiled.concat(res);
+			e.compile(obj);
 		});
-		return uncompiled;
 	}
 }
 class Element {
@@ -598,24 +595,25 @@ class Component {
 		});
 	}
 	compile() {
-		var uncompiled = this.watches.compile(this), c = this;
-		if (uncompiled.length) {
-			uncompiled.forEach(function(e) {
-				c.parent.compileOne(e);
-			});
-		}
+		this.watches.compile(this);
 	}
 	compileOne(watch) {
 		if (!watch.compile(this) && this.parent) {
 			this.parent.compileOne(watch);
 		}
 	}
-	invoke(method, args = []) {
-		if (!!this[method]) {
-			this[method](...args);
+	invoke(callback, method, args = []) {
+		if (Object.keys(this).indexOf(method) > -1) {
+			callback(this[method]);
+		}
+		else if (this[method] instanceof Function) {
+			callback(this[method](...args));
 		}
 		else if (this.parent) {
-			this.parent.invoke(method, args);
+			this.parent.invoke(callback, method, args);
+		}
+		else {
+			callback(undefined);
 		}
 	}
 }
