@@ -9,6 +9,9 @@ html, body {
 main {
 	margin-top: 57px;
 }
+.ag-hide {
+	display: none!important;
+}
 .ag-ripple {
 	position: relative;
 }
