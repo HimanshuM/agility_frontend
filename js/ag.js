@@ -642,18 +642,9 @@ class AgClick extends Directive {
 	}
 	onInit() {
 		this.attr = this.element.attributes.getNamedItem("ag-click");
-		if (this.attr) {
-			this.watches.watches.push(new Binding(this.element.nativeElement, this.attr.value, 0, this.attr));
-		}
-		var c = this;
-		this.element.nativeElement.addEventListener("click", function(e) {
-			c.click(e, this);
+		this.element.nativeElement.addEventListener("click", (event) => {
+			this.parent.invoke(() => {}, this.attr.value.replace("()", ""), [event]);
 		});
-	}
-	click(e, el) {
-		if (this.attr) {
-			this.parent.invoke(this.attr.value.replace("()", ""), [e, el]);
-		}
 	}
 }
 class AgRipple extends Directive {
