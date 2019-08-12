@@ -813,9 +813,7 @@ class Dispatch {
 			}
 		}
 		else {
-			Dispatch.components.forEach(function(e) {
-				e.compile();
-			});
+			Dispatch.refresh();
 		}
 	}
 	static addComponent(component) {
@@ -863,6 +861,11 @@ class Dispatch {
 			for (var element of elements) {
 				var c = new e(element, component);
 			}
+		});
+	}
+	static refresh() {
+		Dispatch.components.forEach(function(e) {
+			e.compile();
 		});
 	}
 }
