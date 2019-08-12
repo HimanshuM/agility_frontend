@@ -401,6 +401,11 @@ class Expression {
 }
 class Watch {
 	watches = [];
+	addBinding(binding) {
+		var sibling = new BindingSibling;
+		sibling.add(binding);
+		this.watches.push(sibling);
+	}
 	addText(node) {
 		var matches;
 		if (matches = node.innerHTML.match(/{{(\w+)}}/g)) {
