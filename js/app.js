@@ -31,7 +31,7 @@ class NavBarComponent extends Component {
 		super();
 		this.include(AgNavbar);
 	}
-	print(ev, el) {
+	print(ev) {
 		this.test = "Login";
 	}
 }
