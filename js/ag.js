@@ -895,6 +895,7 @@ class Dispatch {
 		Dispatch.components.forEach(function(e) {
 			e.compile();
 		});
+		Dispatch.refreshing = false;
 	}
 }
 class String {
