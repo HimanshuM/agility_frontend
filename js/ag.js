@@ -673,6 +673,31 @@ class AgShow extends Directive {
 		}
 	}
 }
+class AgModel extends Directive {
+	selector = "ag-model";
+	static type() {
+		return DirectiveTypes.Attribute;
+	}
+	onInit() {
+		this.identifyType();
+		this.attr = this.element.attributes.getNamedItem("ag-model");
+		Dispatch.compile(this);
+		Dispatch.addComponent(this);
+	}
+	compile() {
+		this.parent.invoke((val) => {
+			if (this.isInput) {
+				this.element.nativeElement.value = val;
+			}
+			else {
+				this.element.innerHTML = val;
+			}
+		}, this.attr.value);
+	}
+	identifyType() {
+		this.isInput = (this.element.nodeName == "SELECT" || this.element.nodeName == "INPUT");
+	}
+}
 class AgRipple extends Directive {
 	selector = "ag-ripple";
 	static type() {
@@ -788,7 +813,7 @@ class Application {
 		Application.nativeComponents = {
 			"AgNavbar": "/js/components/ag_navbar/ag_navbar.js"
 		}
-		Application.nativeDirectives = [AgClick, AgShow, AgRipple, AgButton];
+		Application.nativeDirectives = [AgClick, AgShow, AgModel, AgRipple, AgButton];
 	}
 	include(component, last = false) {
 		if (!!Application.nativeComponents[component]) {
