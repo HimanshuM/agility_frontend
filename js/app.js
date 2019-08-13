@@ -41,11 +41,18 @@ class RootComponent extends Component {
 	course_name = "Lisp";
 	courses = ["Lisp", "Steel Bank Lisp", "Scheme", "Common Lisp"];
 	index = 0;
+	a = "Yay! It works!";
 	constructor() {
 		super();
 	}
 	laud() {
 		this.index++;
+		if (this.index % 2) {
+			this.a = "Hmm!";
+		}
+		else {
+			this.a = "LOLOLOLOL!";
+		}
 		if (this.index > 3) {
 			this.course_id = 23456;
 			this.index = 0;

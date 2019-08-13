@@ -1,7 +1,27 @@
+<style>
+	.home {
+		display: flex;
+		flex-direction: column;
+	}
+	.d-flex {
+		display: flex;
+	}
+	.align-items-center {
+		align-items: center;
+	}
+	.mt-3 {
+		margin-top: 1rem;
+	}
+</style>
 <div class="home" style="padding: 1rem">
-	<button ag-click="laud()" ag-button>Laud</button>
-	<label ag-model="a"></label>
-	<a href="/users/1/courses/{{course_id}}">Open course</a>
-	<label>Course {{course_id}} is actually {{course_name}}</label>
-	<label ag-show="index">Hahahaha</label>
+	<div class="d-flex align-items-center">
+		<button ag-click="laud()" ag-button>Laud</button>
+		<label ag-model="a"></label>
+		<a href="/users/1/courses/{{course_id}}">Open course</a>
+		<label>Course {{course_id}} is actually {{course_name}}</label>
+		<label ag-show="index">Hahahaha</label>
+	</div>
+	<div class="d-flex mt-3">
+		<input type="text" ag-model="index">
+	</div>
 </div>
