@@ -464,6 +464,9 @@ class Element {
 		}
 		return elements;
 	}
+	get nodeName() {
+		return this.nativeElement.nodeName;
+	}
 	get innerHTML() {
 		return this.nativeElement.innerHTML;
 	}
