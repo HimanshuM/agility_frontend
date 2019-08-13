@@ -815,6 +815,7 @@ class Dispatch {
 		Dispatch.setNavigationHandler();
 		var app = new AgApplication;
 		app.run(Dispatch.addComponent);
+		Dispatch.refreshing = false;
 	}
 	static setNavigationHandler() {
 		document.addEventListener("click", function(e) {
@@ -887,6 +888,10 @@ class Dispatch {
 		});
 	}
 	static refresh() {
+		if (Dispatch.refreshing) {
+			return;
+		}
+		Dispatch.refreshing = true;
 		Dispatch.components.forEach(function(e) {
 			e.compile();
 		});
