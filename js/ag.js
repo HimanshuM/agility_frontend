@@ -683,6 +683,11 @@ class AgModel extends Directive {
 	onInit() {
 		this.identifyType();
 		this.attr = this.element.attributes.getNamedItem("ag-model");
+		if (this.isInput) {
+			this.element.nativeElement.addEventListener("input", (event) => {
+				this.parent[this.attr.value] = this.element.nativeElement.value;
+			});
+		}
 		Dispatch.compile(this);
 		Dispatch.addComponent(this);
 	}
