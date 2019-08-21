@@ -236,13 +236,14 @@ class Binding {
 				if (this.value) {
 					this.length = this.value.toString().length;
 				}
+				var value = String.stringify(result);
 				if (this.attr) {
-					this.compileAttr(result);
+					this.compileAttr(value);
 				}
 				else {
-					this.compileText(result);
+					this.compileText(value);
 				}
-				this.value = result;
+				this.value = value;
 				changed = true;
 			}
 			callback(result, changed);
@@ -288,7 +289,8 @@ class BindingSibling {
 			e.index += offset;
 			e.compile(obj, (result, changed) => {
 				if (changed) {
-					offset += result.toString().length - e.length;
+					result = String.stringify(result);
+					offset += result.length - e.length;
 				}
 			});
 		});
