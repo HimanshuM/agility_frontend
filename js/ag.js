@@ -856,6 +856,9 @@ class Dispatch {
 		document.addEventListener("click", function(e) {
 			Dispatch.onClick(e, e.target);
 		});
+		document.addEventListener("input", function(e) {
+			Dispatch.refresh();
+		})
 		window.onpopstate = function(event) {
 			Dispatch.navigateTo(window.location.pathname);
 		}
