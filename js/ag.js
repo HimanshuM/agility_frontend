@@ -938,5 +938,15 @@ class String {
 	static snakeCase(string, delimiter = "_") {
 		return string.split(/(?=[A-Z])/).join(delimiter).toLowerCase();
 	}
+	static stringify(value) {
+		var ret = value;
+		try {
+			ret = value.toString();
+		}
+		catch (e) {
+			ret = value || "";
+		}
+		return ret;
+	}
 }
 window.addEventListener("load", Dispatch.init);
