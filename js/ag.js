@@ -247,7 +247,7 @@ class Binding {
 				changed = true;
 			}
 			callback(result, changed);
-		}, this.expression);
+		}, this.expression, [this]);
 	}
 	compileText(result) {
 		if (this.value === undefined) {
