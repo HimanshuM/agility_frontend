@@ -705,6 +705,117 @@ class AgModel extends Directive {
 		this.isInput = (this.element.nodeName == "SELECT" || this.element.nodeName == "INPUT");
 	}
 }
+class AgFor extends Directive {
+	selector = "ag-for";
+	static indexAttr() {
+		return "ag-afi";
+	}
+	onInit() {
+		this.loopAttr = this.element.attributes.getNamedItem("loop");
+		if (!this.loopAttr) {
+			return;
+		}
+		this.compileLoopExpression();
+		this.loopContent = [];
+		for (var node of this.element.nativeElement.children) {
+			var clone = node.cloneNode(true);
+			clone.hashCode = undefined;
+			this.loopContent.push(clone);
+		}
+		this.invoked = false;
+		Dispatch.compile(this);
+		Dispatch.addComponent(this);
+	}
+	compileLoopExpression() {
+		this.keyName = this.iteratorName = this.loopOverName = "";
+		var hasKey = false;
+		this.loopExpression = this.loopAttr.value.trim().replace(" in ", " ");
+		for (var i = 0; i < this.loopExpression.length; i++) {
+			if (!this.iteratorName && this.loopExpression[i] == "(") {
+				hasKey = true;
+				continue;
+			}
+			if (hasKey && !this.keyName) {
+				while (this.loopExpression[i] != ",") {
+					this.keyName += this.loopExpression[i++];
+				}
+				i++;
+			}
+			if (!this.iteratorName) {
+				var delimiter = hasKey ? ")" : " ";
+				while (this.loopExpression[i] != delimiter) {
+					this.iteratorName += this.loopExpression[i++];
+				}
+				if (hasKey) {
+					i++;
+				}
+			}
+			this.loopOverName += this.loopExpression[i];
+		}
+		this.keyName = this.keyName.trim();
+		this.iteratorName = this.iteratorName.trim();
+		this.loopOverName = this.loopOverName.trim();
+	}
+	compile() {
+		if (this.invoked) {
+			return this.compileContent();
+		}
+		this.compileLoop();
+	}
+	compileContent() {
+		this.watches.compile(this);
+		this.invoked = false;
+		return;
+	}
+	compileLoop() {
+		this.parent.invoke((val) => {
+			this.loop = [];
+			this.removeChildren();
+			var i = 0;
+			if (this.keyName) {
+				for (var each in val) {
+					this.loop.push(each);
+					this.cloneNode(i++);
+				}
+			}
+			else {
+				for (var each of val) {
+					this.loop.push(each);
+					this.cloneNode(i++);
+				}
+			}
+			this.invoked = true;
+			Dispatch.compile(this);
+		}, this.loopOverName);
+	}
+	removeChildren() {
+		while (this.element.nativeElement.lastChild) {
+			this.element.nativeElement.removeChild(this.element.nativeElement.lastChild);
+		}
+	}
+	cloneNode(index) {
+		for (var node of this.loopContent) {
+			var clone = node.cloneNode(true);
+			clone.setAttribute(AgFor.indexAttr(), index);
+			this.element.append(clone);
+		}
+	}
+	invoke(callback, method, args = []) {
+		var node = args[0].node;
+		var afi = false;
+		while (!(afi = node.attributes.getNamedItem(AgFor.indexAttr()))) {
+			node = node.parentNode;
+		}
+		var index = afi.value;
+		if (method.includes("$index")) {
+			method = method.replace("$index", index);
+			callback(eval(method));
+		}
+		else {
+			callback(this.loop[index]);
+		}
+	}
+}
 class AgRipple extends Directive {
 	selector = "ag-ripple";
 	static type() {
@@ -820,7 +931,7 @@ class Application {
 		Application.nativeComponents = {
 			"AgNavbar": "/js/components/ag_navbar/ag_navbar.js"
 		}
-		Application.nativeDirectives = [AgClick, AgShow, AgModel, AgRipple, AgButton];
+		Application.nativeDirectives = [AgClick, AgShow, AgModel, AgFor, AgRipple, AgButton];
 	}
 	include(component, last = false) {
 		if (!!Application.nativeComponents[component]) {
