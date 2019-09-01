@@ -1,1 +1,16 @@
+<style>
+	.d-flex {
+		display: flex;
+	}
+	.flex-column {
+		flex-direction: column;
+	}
+</style>
 <div>This is enrollments page!</div>
+<ag-for loop="course in courses" class="d-flex flex-column">
+	<div class="d-flex">
+		<label>{{$index + 1}}</label>
+		<label>{{course}}</label>
+	</div>
+</ag-for>
+<button ag-click="add()" ag-button>Another</button>

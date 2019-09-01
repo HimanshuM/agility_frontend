@@ -65,4 +65,14 @@ class UserComponent extends Component {
 }
 class EnrollmentComponent extends Component {
 	templateUrl = "/views/enrollment.html";
+	courses = ["Intro to Lisp", "Intro to Scheme", "Advanced Lisp", "Advanced Scheme"];
+	index = 1;
+	add() {
+		if (this.index % 2 == 0) {
+			this.courses.splice(this.index, 0, "Course " + (this.index++));
+		}
+		else {
+			this.courses.push("Course " + (this.index++));
+		}
+	}
 }
