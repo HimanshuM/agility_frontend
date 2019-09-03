@@ -14,3 +14,9 @@
 	</div>
 </ag-for>
 <button ag-click="add()" ag-button>Another</button>
+<ag-for loop="(key, value) in listings" class="d-flex flex-column">
+	<div class="d-flex">
+		<label>{{key}}</label>
+		<label>{{value}}</label>
+	</div>
+</ag-for>
