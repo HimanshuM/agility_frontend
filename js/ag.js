@@ -831,6 +831,9 @@ class AgFor extends Directive {
 			method = method.replace("$index", index);
 			callback(eval(method));
 		}
+		else if (this.keyName) {
+			callback(this.loop[index][method]);
+		}
 		else {
 			callback(this.loop[index]);
 		}
