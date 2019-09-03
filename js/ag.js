@@ -1002,8 +1002,7 @@ class Dispatch {
 		component.compile();
 	}
 	static compileText(component) {
-		var element = document.getElementsByTagName(component.selector)[0];
-		var node, match, xPathRes = document.evaluate(".//*[contains(text(),'{{')]", element, null, XPathResult.ANY_TYPE, null);
+		var node, match, xPathRes = document.evaluate(".//*[contains(text(),'{{')]", component.element.nativeElement, null, XPathResult.ANY_TYPE, null);
 		while (node = xPathRes.iterateNext()) {
 			if (!node.hashCode) {
 				component.watches.addText(node);
@@ -1011,8 +1010,7 @@ class Dispatch {
 		}
 	}
 	static compileAttr(component) {
-		var element = document.getElementsByTagName(component.selector)[0];
-		var node, match, xPathRes = document.evaluate(".//*[contains(@*,'{{')]", element, null, XPathResult.ANY_TYPE, null);
+		var node, match, xPathRes = document.evaluate(".//*[contains(@*,'{{')]", component.element.nativeElement, null, XPathResult.ANY_TYPE, null);
 		while (node = xPathRes.iterateNext()) {
 			if (!!node.hashCode) {
 				continue;
