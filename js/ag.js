@@ -717,11 +717,13 @@ class AgFor extends Directive {
 		}
 		this.compileLoopExpression();
 		this.loopContent = [];
+		this.loop = [];
 		for (var node of this.element.nativeElement.children) {
 			var clone = node.cloneNode(true);
 			clone.hashCode = undefined;
 			this.loopContent.push(clone);
 		}
+		this.removeChildren(this.element.nativeElement.children.length);
 		this.invoked = false;
 		Dispatch.compile(this);
 		Dispatch.addComponent(this);
@@ -758,9 +760,11 @@ class AgFor extends Directive {
 	}
 	compile() {
 		if (this.invoked) {
-			return this.compileContent();
+			this.compileContent();
 		}
-		this.compileLoop();
+		else {
+			this.compileLoop();
+		}
 	}
 	compileContent() {
 		this.watches.compile(this);
@@ -769,35 +773,51 @@ class AgFor extends Directive {
 	}
 	compileLoop() {
 		this.parent.invoke((val) => {
+			var count = this.keyName ? Object.keys(val).length : val.length;
+			if (count != this.loop.length) {
+				this.redraw(count - this.loop.length);
+			}
 			this.loop = [];
-			this.removeChildren();
-			var i = 0;
 			if (this.keyName) {
 				for (var each in val) {
-					this.loop.push(each);
-					this.cloneNode(i++);
+					var obj = {};
+					obj[this.keyName] = each;
+					obj[this.iteratorName] = val[each];
+					this.loop.push(obj);
 				}
 			}
 			else {
 				for (var each of val) {
 					this.loop.push(each);
-					this.cloneNode(i++);
 				}
 			}
 			this.invoked = true;
 			Dispatch.compile(this);
 		}, this.loopOverName);
 	}
-	removeChildren() {
-		while (this.element.nativeElement.lastChild) {
-			this.element.nativeElement.removeChild(this.element.nativeElement.lastChild);
+	redraw(difference) {
+		if (difference > 0) {
+			this.drawChildren(difference);
+		}
+		else {
+			this.removeChildren(-difference);
 		}
 	}
-	cloneNode(index) {
-		for (var node of this.loopContent) {
-			var clone = node.cloneNode(true);
-			clone.setAttribute(AgFor.indexAttr(), index);
-			this.element.append(clone);
+	removeChildren(count) {
+		while (count) {
+			this.element.nativeElement.removeChild(this.element.nativeElement.lastElementChild);
+			count--;
+		}
+	}
+	drawChildren(count) {
+		var index = this.loop.length;
+		while (count) {
+			for (var node of this.loopContent) {
+				var clone = node.cloneNode(true);
+				clone.setAttribute(AgFor.indexAttr(), index++);
+				this.element.append(clone);
+			}
+			count--;
 		}
 	}
 	invoke(callback, method, args = []) {
