@@ -652,6 +652,19 @@ class AgClick extends Directive {
 		});
 	}
 }
+class AgSubmit extends Directive {
+	selector = "ag-submit";
+	static type() {
+		return DirectiveTypes.Attribute;
+	}
+	onInit() {
+		this.attr = this.element.attributes.getNamedItem("ag-submit");
+		this.element.nativeElement.addEventListener("submit", (event) => {
+			event.preventDefault();
+			this.parent.invoke(() => {}, this.attr.value.replace("()", ""), [event]);
+		});
+	}
+}
 class AgShow extends Directive {
 	selector = "ag-show";
 	static type() {
@@ -954,7 +967,7 @@ class Application {
 		Application.nativeComponents = {
 			"AgNavbar": "/js/components/ag_navbar/ag_navbar.js"
 		}
-		Application.nativeDirectives = [AgClick, AgShow, AgModel, AgFor, AgRipple, AgButton];
+		Application.nativeDirectives = [AgClick, AgSubmit, AgShow, AgModel, AgFor, AgRipple, AgButton];
 	}
 	include(component, last = false) {
 		if (!!Application.nativeComponents[component]) {
