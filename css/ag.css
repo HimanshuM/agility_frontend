@@ -1,0 +1,53 @@
+main {
+	margin-top: 57px;
+}
+.ag-hide {
+	display: none!important;
+}
+.ag-ripple {
+	position: relative;
+}
+.ag-button {
+	background: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	display: inline-block;
+	font-family: Roboto,"Helvetica Neue",sans-serif;
+	font-size: 14px;
+	min-height: 36px;
+	min-width: 64px;
+	outline: 0;
+	padding: 8px 1rem;
+	position: relative;
+	text-align: center;
+	white-space: nowrap;
+}
+.ag-button:hover {
+	background: #eee;
+}
+.ag-button-title {
+	font-size: 14px;
+	font-weight: 500;
+}
+.ripple {
+	border-radius: inherit;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	pointer-events: none;
+	position: absolute;
+}
+.ripple.ripple-unbounded {
+	overflow: visible;
+}
+.ripple-effect {
+	background-color: currentColor;
+	border-radius: 50%;
+	opacity: .1;
+	position: absolute;
+	transform: scale(0);
+	transition: opacity .45s cubic-bezier(0,0,.2,1), transform .5s cubic-bezier(0,.1,.21,1);
+}
