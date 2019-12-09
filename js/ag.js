@@ -635,15 +635,13 @@ class AgShow extends Directive {
 	onInit() {
 		this.attr = this.element.attributes.getNamedItem("ag-show");
 		if (this.attr) {
-			this.watches.addBinding(new Binding(this.element.nativeElement, this.attr.value, 0, this.attr, (binding, obj) => {
-				this.parent.invoke((val) => {
-					if (!val) {
-						this.element.addClass("ag-hide");
-					}
-					else {
-						this.element.removeClass("ag-hide");
-					}
-				}, this.attr.value);
+			this.watches.addBinding(new Binding(this.element.nativeElement, this.attr.value, 0, this.attr, (binding, obj, val) => {
+				if (!val) {
+					this.element.addClass("ag-hide");
+				}
+				else {
+					this.element.removeClass("ag-hide");
+				}
 			}));
 			Dispatch.compile(this);
 			Dispatch.addComponent(this);
