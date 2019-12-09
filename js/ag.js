@@ -944,14 +944,18 @@ class Application {
 		if (this.hold) {
 			return;
 		}
+		let location = window.location.pathname;
+		location = location.replace(Dispatch.baseHref.pathname, "");
+		if (location.includes("index.html")) {
+			location = Str.trim(location.replace("index.html", "")) + "/";
+		}
 		if (this.baseComponent) {
-			var app = this;
-			Dispatch.addComponent(Component.render(this.baseComponent, {}, function() {
-				app.onRun(Routes.instance.dispatch(window.location.pathname));
+			Dispatch.addComponent(Component.render(this.baseComponent, {}, () => {
+				this.onRun(Routes.instance.dispatch(location));
 			}));
 		}
 		else {
-			this.onRun(Routes.instance.dispatch(window.location.pathname));
+			this.onRun(Routes.instance.dispatch(location));
 		}
 	}
 	bootstrap(component) {
