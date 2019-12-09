@@ -730,8 +730,17 @@ class AgFor extends Directive {
 		return;
 	}
 	compileLoop() {
+		let expression = [this.loopOverName];
+		if (this.loopOverName.includes(".")) {
+			expression = this.loopOverName.split(".");
+		}
 		this.parent.invoke((val) => {
-			var count = this.keyName ? Object.keys(val).length : val.length;
+			if (expression.length > 1) {
+				for (let i = 1; i < expression.length; i++) {
+					val = this.evaluateSubExpression(val, expression[i]);
+				}
+			}
+			var count = this.keyName ? Object.keys(val).length : (val ? val.length : 0);
 			if (count != this.loop.length) {
 				this.redraw(count - this.loop.length);
 			}
@@ -745,13 +754,15 @@ class AgFor extends Directive {
 				}
 			}
 			else {
-				for (var each of val) {
-					this.loop.push(each);
+				if (val) {
+					for (var each of val) {
+						this.loop.push(each);
+					}
 				}
 			}
 			this.invoked = true;
 			Dispatch.compile(this);
-		}, this.loopOverName);
+		}, expression[0]);
 	}
 	redraw(difference) {
 		if (difference > 0) {
@@ -762,7 +773,7 @@ class AgFor extends Directive {
 		}
 	}
 	removeChildren(count) {
-		while (count) {
+		while (count && this.element.nativeElement.lastElementChild) {
 			this.element.nativeElement.removeChild(this.element.nativeElement.lastElementChild);
 			count--;
 		}
@@ -794,6 +805,23 @@ class AgFor extends Directive {
 		}
 		else {
 			callback(this.loop[index]);
+		}
+	}
+	evaluateSubExpression(result, subExpression) {
+		if (!result) {
+			return result;
+		}
+		else if (Object.keys(result).indexOf(subExpression) > -1) {
+			return result[subExpression];
+		}
+		else if (result[subExpression] instanceof Function) {
+			return result[subExpression]();
+		}
+		else if (result.hasOwnProperty(subExpression)) {
+			return result[subExpression];
+		}
+		else {
+			return null;
 		}
 	}
 }
