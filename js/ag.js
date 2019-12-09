@@ -557,15 +557,15 @@ class Component {
 			this.parent.compileOne(watch);
 		}
 	}
-	invoke(callback, method, args = []) {
-		if (Object.keys(this).indexOf(method) > -1) {
-			callback(this[method]);
+	invoke(callback, member, args = []) {
+		if (Object.keys(this).indexOf(member) > -1) {
+			callback(this[member]);
 		}
-		else if (this[method] instanceof Function) {
-			callback(this[method](...args));
+		else if (this[member] instanceof Function) {
+			callback(this[member](...args));
 		}
 		else if (this.parent) {
-			this.parent.invoke(callback, method, args);
+			this.parent.invoke(callback, member, args);
 		}
 		else {
 			callback(undefined);
