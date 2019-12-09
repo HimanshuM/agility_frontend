@@ -627,6 +627,18 @@ class AgSubmit extends Directive {
 		});
 	}
 }
+class AgInput extends Directive {
+	selector = "ag-input";
+	static type() {
+		return DirectiveTypes.Attribute;
+	}
+	onInit() {
+		this.attr = this.element.attributes.getNamedItem("ag-input");
+		this.element.nativeElement.addEventListener("input", (event) => {
+			this.parent.invoke(() => {}, this.attr.value.replace("()", ""), [event]);
+		});
+	}
+}
 class AgShow extends Directive {
 	selector = "ag-show";
 	static type() {
