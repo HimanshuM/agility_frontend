@@ -51,7 +51,7 @@ class Http {
 	static config;
 	static initialize() {
 		Http.config = {
-			mode: "no-cors",
+			mode: "cors",
 			cache: "default",
 			credentials: "same-origin",
 			headers: {}
