@@ -299,6 +299,23 @@ class Binding {
 		this.setNode(node);
 		BindingMap.add(this.node.hashCode, this);
 	}
+	evaluateSubExpression(result, subExpression) {
+		if (!result) {
+			return result;
+		}
+		else if (Object.keys(result).indexOf(subExpression) > -1) {
+			return result[subExpression];
+		}
+		else if (result[subExpression] instanceof Function) {
+			return result[subExpression]();
+		}
+		else if (result.hasOwnProperty(subExpression)) {
+			return result[subExpression];
+		}
+		else {
+			return null;
+		}
+	}
 }
 class BindingSibling {
 	siblings = [];
