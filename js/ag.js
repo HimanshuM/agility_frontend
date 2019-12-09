@@ -153,7 +153,7 @@ class Routes {
 		});
 	}
 	dispatch(path) {
-		path = String.trim(path);
+		path = Str.trim(path);
 		var components = path.split("/");
 		var node = this.#routes["/"];
 		var route;
@@ -327,12 +327,13 @@ class BindingSibling {
 	}
 	compile(obj) {
 		var offset = 0, uncompiled = [];
-		this.siblings.forEach(function(e) {
+		this.siblings.forEach((e) => {
 			e.index += offset;
 			e.compile(obj, (result, changed) => {
 				if (changed) {
-					result = String.stringify(result);
+					result = Str.stringify(result);
 					offset += result.length - e.length;
+					e.length = result.length;
 				}
 			});
 		});
@@ -397,7 +398,7 @@ class Watch {
 		}
 	}
 	compile(obj, callback) {
-		this.watches.forEach(function(e) {
+		this.watches.forEach(e => {
 			e.compile(obj);
 		});
 	}
@@ -510,10 +511,9 @@ class Component {
 	fetch(obj = "template") {
 		if (obj == "template") {
 			if (this.templateUrl) {
-				var c = this;
-				Http.get(this.templateUrl)
-					.then(function(res) {
-						c.renderTemplate(res.data);
+				Http.get(Dispatch.baseHref + this.templateUrl)
+					.then(res => {
+						this.renderTemplate(res.data);
 					});
 			}
 			else if (this.template) {
@@ -524,13 +524,12 @@ class Component {
 			}
 		}
 		else if (obj == "styleSheets") {
-			var c = this;
 			this.styleSheets.forEach(function(e) {
 				Http.get(e)
-					.then(function(res) {
+					.then(res => {
 						var style = document.createElement("style");
 						style.innerHTML = res.data;
-						document.getElementsByTagName(c.selector)[0].prepend(style);
+						document.getElementsByTagName(this.selector)[0].prepend(style);
 					});
 			});
 		}
@@ -564,9 +563,8 @@ class Component {
 		this.includes = args;
 	}
 	renderIncludes() {
-		var c = this;
-		this.includes.forEach(function(component) {
-			Dispatch.addComponent(Component.render(component, {}, null, c));
+		this.includes.forEach(component => {
+			Dispatch.addComponent(Component.render(component, {}, null, this));
 		});
 	}
 	compile() {
@@ -868,12 +866,11 @@ class AgRipple extends Directive {
 		this.ripple = Element.create("div");
 		this.ripple.addClass("ripple");
 		this.element.append(this.ripple);
-		var c = this;
-		this.element.nativeElement.addEventListener("mousedown", function(e) {
-			c.ripples(e, this);
+		this.element.nativeElement.addEventListener("mousedown", e => {
+			this.ripples(e, this);
 		});
-		this.element.nativeElement.addEventListener("mouseup", function(e) {
-			c.ripplesOut(e, this);
+		this.element.nativeElement.addEventListener("mouseup", e => {
+			this.ripplesOut(e, this);
 		});
 	}
 	ripples(ev, el) {
@@ -900,11 +897,10 @@ class AgRipple extends Directive {
 		}, 5);
 	}
 	ripplesOut(ev, el) {
-		var c = this;
-		window.setTimeout(function() {
+		window.setTimeout(() => {
 			c.rippler.style.opacity = 0;
-			window.setTimeout(function() {
-				c.rippler.remove();
+			window.setTimeout(() => {
+				this.rippler.remove();
 			}, 200);
 		}, 200);
 	}
@@ -914,7 +910,6 @@ class AgButton extends AgRipple {
 		if (this.element.hasClass("ag-button")) {
 			return;
 		}
-		var c = this;
 		this.element.addClass("ag-button");
 		var span = document.createElement("span");
 		span.classList.add("ag-button-title");
@@ -974,19 +969,18 @@ class Application {
 		Application.nativeComponents = {
 			"AgNavbar": "/js/components/ag_navbar/ag_navbar.js"
 		}
-		Application.nativeDirectives = [AgClick, AgSubmit, AgShow, AgModel, AgFor, AgRipple, AgButton];
+		Application.nativeDirectives = [AgClick, AgModel, AgSubmit, AgShow, AgInput, AgFor, AgRipple, AgButton];
 	}
 	include(component, last = false) {
 		if (!!Application.nativeComponents[component]) {
-			var app = this;
 			Http.get(Application.nativeComponents[component])
-				.then(function(res) {
+				.then(res => {
 					var script = document.createElement("script");
 					script.innerHTML = res.data;
 					document.head.appendChild(script);
 					if (last) {
-						app.hold = false;
-						app.run();
+						this.hold = false;
+						this.run();
 					}
 				});
 		}
@@ -1078,7 +1072,7 @@ class Dispatch {
 	}
 	static compileNativeDirectives(component) {
 		Application.nativeDirectives.forEach(function(e) {
-			var type = e.type(), selector = String.snakeCase(e.name, "-");
+			var type = e.type(), selector = Str.snakeCase(e.name, "-");
 			if (type == DirectiveTypes.Attribute) {
 				selector = "[" + selector + "]";
 			}
