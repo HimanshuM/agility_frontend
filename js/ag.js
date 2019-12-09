@@ -1044,13 +1044,22 @@ class Dispatch {
 			if (!node.hashCode) {
 				component.watches.addText(node);
 			}
+			else {
+				let hashCode = node.hashCode.split(":");
+				if (!hashCode[0]) {
+					component.watches.addText(node);
+				}
+			}
 		}
 	}
 	static compileAttr(component) {
 		var node, match, xPathRes = document.evaluate(".//*[contains(@*,'{{')]", component.element.nativeElement, null, XPathResult.ANY_TYPE, null);
 		while (node = xPathRes.iterateNext()) {
 			if (!!node.hashCode) {
-				continue;
+				let hashCode = node.hashCode.split(":");
+				if (hashCode[1]) {
+					continue;
+				}
 			}
 			var attrs = [], attr, attrXPath = document.evaluate("//@*[contains(.,'{{')]", node, null, XPathResult.ANY_TYPE, null);
 			while (attr = attrXPath.iterateNext()) {
