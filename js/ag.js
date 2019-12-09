@@ -992,6 +992,7 @@ class Dispatch {
 	static init() {
 		Http.initialize();
 		Dispatch.base = false;
+		Dispatch.baseHref = new URL(document.getElementsByTagName("BASE")[0].href);
 		Dispatch.router = false;
 		Dispatch.components = [];
 		Dispatch.setNavigationHandler();
