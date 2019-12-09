@@ -1086,7 +1086,7 @@ class Dispatch {
 		Dispatch.refreshing = false;
 	}
 }
-class String {
+class Str {
 	static trim(url, char = "/") {
 		url = url.replace(new RegExp("^([" + char + "]*)", "g"), '');
 		return url.replace(new RegExp("([" + char + "]*)$", "g"), '');
