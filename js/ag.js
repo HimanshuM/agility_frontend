@@ -1,10 +1,7 @@
 class Response {
 	constructor(response) {
-		this.status = response.status;
 		this.response = response;
-		this.headers = {"content-type": ""};
-		this.data = "";
-		this.parseHeaders();
+		this.methods = ["json", "text", "blob"];
 	}
 	parseHeaders() {
 		for (var h of this.response.headers.entries()) {
