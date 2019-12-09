@@ -470,6 +470,9 @@ class Element {
 	set hashCode(hc) {
 		this.nativeElement.hashCode = hc;
 	}
+	on(event, handler) {
+		this.nativeElement.addEventListener(event, handler);
+	}
 }
 class Component {
 	templateUrl = "";
