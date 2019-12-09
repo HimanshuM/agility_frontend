@@ -372,7 +372,7 @@ class Watch {
 	}
 	addText(node) {
 		var matches;
-		if (matches = node.innerHTML.match(/{{\$?\w+(\.\$?\w+)?(\((\$?\w+(\.?\$?\w+)?(,\s*(\$?\w+(\.\$?\w+)?))*)?\))?(\s*[+\-*/]+\s*(\$?\w+(\.\$?\w+)?(\((\$?\w+(\.?\$?\w+)?(,\s*(\$?\w+(\.\$?\w+)?))*)?\))?)*)*}}/g)) {
+		if (matches = node.innerHTML.match(/{{\$?\w+(\.\$?\w+)*(\((\$?\w+(\.?\$?\w+)?(,\s*(\$?\w+(\.\$?\w+)?))*)?\))?(\s*[+\-*/]+\s*(\$?\w+(\.\$?\w+)?(\((\$?\w+(\.?\$?\w+)?(,\s*(\$?\w+(\.\$?\w+)?))*)?\))?)*)*}}/g)) {
 			var siblings = new BindingSibling;
 			for (var match of matches) {
 				var index = node.innerHTML.indexOf(match);
@@ -385,7 +385,7 @@ class Watch {
 	addAttr(node, attrs) {
 		var matches;
 		for (var attr of attrs) {
-			if (matches = attr.value.match(/{{(\w+)}}/g)) {
+			if (matches = attr.value.match(/{{\$?\w+(\.\$?\w+)*}}/g)) {
 				var siblings = new BindingSibling;
 				for (var match of matches) {
 					var index = node.innerHTML.indexOf(match);
