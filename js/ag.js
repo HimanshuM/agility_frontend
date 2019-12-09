@@ -109,6 +109,12 @@ class Routes {
 	#routes = {"/": {}};
 	constructor() {}
 	build(opts) {
+		if (!!opts.notFound) {
+			opts.path = "/--404--"
+			opts.component = opts.notFound;
+			delete opts.notFound;
+			return this.build(opts)
+		}
 		if (!opts.path) {
 			return;
 		}
@@ -176,6 +182,9 @@ class Routes {
 				params[route.params[i]] = e;
 			});
 			return Component.render(route.component, new Instance(route, params), null, Dispatch.router);
+		}
+		else {
+			this.dispatch("404");
 		}
 	}
 }
