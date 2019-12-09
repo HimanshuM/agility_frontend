@@ -230,20 +230,39 @@ class Binding {
 	setNode(node) {
 		this.node = node;
 		if (!this.node.hashCode) {
-			this.node.hashCode = Math.random().toString(36).substring(7);
+			let hashCode = Math.random().toString(36).substring(7);
+			this.node.hashCode = (this.attr ? ":a" : "n") + hashCode + (this.attr ? "" : ":");
+		}
+		else {
+			let hashCode = this.node.hashCode.split(":");
+			if (this.attr && !hashCode[1]) {
+				this.node.hashCode += "a" + Math.random().toString(36).substring(7);
+			}
+			else if (!this.attr && !hashCode[0]) {
+				this.node.hashCode = "n" + Math.random().toString(36).substring(7) + this.node.hashCode;
+			}
 		}
 	}
 	compile(obj, callback) {
-		if (this.callback) {
-			return this.callback(this, obj);
+		let expression = [this.expression];
+		if (this.expression.includes(".")) {
+			expression = this.expression.split(".");
 		}
 		obj.invoke((result) => {
-			var changed = false;
-			if (result != this.value) {
+			if (expression.length > 1) {
+				for (let i = 1; i < expression.length; i++) {
+					result = this.evaluateSubExpression(result, expression[i]);
+				}
+			}
+			if (this.callback) {
+				return this.callback(this, obj, result);
+			}
+			var value = Str.stringify(result);
+			var changed = value !== this.value;
+			if (changed) {
 				if (this.value) {
 					this.length = this.value.toString().length;
 				}
-				var value = String.stringify(result);
 				if (this.attr) {
 					this.compileAttr(value);
 				}
@@ -251,17 +270,16 @@ class Binding {
 					this.compileText(value);
 				}
 				this.value = value;
-				changed = true;
 			}
-			callback(result, changed);
-		}, this.expression, [this]);
+			callback(value, changed);
+		}, expression[0], [this]);
 	}
 	compileText(result) {
 		if (this.value === undefined) {
 			this.node.innerHTML = this.node.innerHTML.replace("{{" + this.expression + "}}", result);
 		}
 		else {
-			this.node.innerHTML = String.replace(this.node.innerHTML, this.index, result, this.value.length);
+			this.node.innerHTML = Str.replace(this.node.innerHTML, this.index, result, this.value.length);
 		}
 	}
 	compileAttr(result) {
@@ -269,7 +287,7 @@ class Binding {
 			this.attr.value = this.attr.value.replace("{{" + this.expression + "}}", result);
 		}
 		else {
-			this.attr.value = String.replace(this.attr.value, this.index, result, this.value.length);
+			this.attr.value = Str.replace(this.attr.value, this.index, result, this.value.length);
 		}
 	}
 	transferTo(node) {
