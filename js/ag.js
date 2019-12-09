@@ -15,38 +15,39 @@ class Response {
 		}
 	}
 	resolve() {
-		if (this.status >= 200 && this.status < 300) {
-			return this.parseData();
-		}
-		else {
-			return Promise.reject(this);
-		}
+		return this.parseData(0);
 	}
-	parseData() {
-		let r = this;
-		let contentType = this.headers["content-type"];
-		if (contentType == "application/json") {
-			return this.response.json().then((data) => {
-				r.data = data;
-				return r;
+	parseData(i) {
+		let response = this.response.clone();
+		return response[this.methods[i]]()
+			.then(data => {
+				this.data = data;
+				return this;
+			})
+			.catch(err => {
+				if (!response.ok) {
+					return response;
+				}
+				else {
+					if (i == this.methods.length) {
+						return this;
+					}
+					return this.parseData(i + 1);
+				}
 			});
-		}
-		else if (contentType.indexOf("text/") > -1 || contentType == "application/javascript") {
-			return this.response.text().then((data) => {
-				r.data = data;
-				return r;
-			});
-		}
-		else {
-			return this.response.blob().then((data) => {
-				r.data = data;
-				return r;
-			});
-		}
 	}
-	static build(response) {
+	json() {
+		return this.response.json(data => data);
+	}
+	text() {
+		return this.response.text(data => data);
+	}
+	blob() {
+		return this.response.blob(data => data);
+	}
+	static build(response, i = 0) {
 		response = new Response(response);
-		return response.resolve();
+		return response.resolve(i);
 	}
 }
 class Http {
